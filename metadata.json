@@ -1,0 +1,8 @@
+{
+  "name": "Ethical Elites AI",
+  "description": "Ethical Elites AI is an AI-powered health assistant that provides general health information and answers user queries in a conversational manner. This application is for informational purposes only and does not provide medical advice.",
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation"
+  ]
+}
