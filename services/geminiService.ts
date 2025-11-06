@@ -56,19 +56,13 @@ export const findAppointments = async (
 ): Promise<GenerateContentResponse> => {
     try {
         const ai = getAiInstance();
+        const enhancedPrompt = `${prompt}\n\nMy current location is at latitude ${location.latitude}, longitude ${location.longitude}. Please help me find nearby healthcare providers.`;
+
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
-            contents: prompt,
+            contents: enhancedPrompt,
             config: {
-                tools: [{ googleMaps: {} }],
-                toolConfig: {
-                    retrievalConfig: {
-                        latLng: {
-                            latitude: location.latitude,
-                            longitude: location.longitude
-                        }
-                    }
-                }
+                tools: [{ googleSearch: {} }],
             },
         });
         return response;

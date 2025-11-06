@@ -66,9 +66,11 @@ const BookAppointmentPage: React.FC<BookAppointmentPageProps> = ({ onClose }) =>
 
     try {
       const response: GenerateContentResponse = await findAppointments(prompt, location);
-      const summary = response.text;
-      const places = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-      
+      const summary = response.text || "No results found.";
+      const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+
+      const places = chunks.filter(chunk => chunk.web || chunk.maps);
+
       setResults({ summary, places });
     } catch (err) {
       console.error(err);
@@ -135,23 +137,40 @@ const BookAppointmentPage: React.FC<BookAppointmentPageProps> = ({ onClose }) =>
 
               {results.places.length > 0 && (
                 <div>
-                   <h3 className="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Nearby Places</h3>
+                   <h3 className="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Helpful Resources</h3>
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {results.places.map((place, index) => (
-                            place.maps && (
-                                <div key={index} className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                                    <h4 className="font-bold text-slate-800">{place.maps.title}</h4>
-                                    <a 
-                                        href={place.maps.uri}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-sm text-blue-600 hover:underline mt-2 inline-flex items-center"
-                                    >
-                                       <MapPinIcon /> View on Google Maps
-                                    </a>
-                                </div>
-                            )
-                        ))}
+                        {results.places.map((place, index) => {
+                            if (place.maps) {
+                                return (
+                                    <div key={index} className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                                        <h4 className="font-bold text-slate-800">{place.maps.title}</h4>
+                                        <a
+                                            href={place.maps.uri}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm text-blue-600 hover:underline mt-2 inline-flex items-center"
+                                        >
+                                           <MapPinIcon /> View on Google Maps
+                                        </a>
+                                    </div>
+                                );
+                            } else if (place.web) {
+                                return (
+                                    <div key={index} className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                                        <h4 className="font-bold text-slate-800">{place.web.title}</h4>
+                                        <a
+                                            href={place.web.uri}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm text-blue-600 hover:underline mt-2 inline-block"
+                                        >
+                                            Visit Website &rarr;
+                                        </a>
+                                    </div>
+                                );
+                            }
+                            return null;
+                        })}
                    </div>
                 </div>
               )}
