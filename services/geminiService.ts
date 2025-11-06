@@ -23,11 +23,15 @@ const getAiInstance = (() => {
   let instance: GoogleGenAI | null = null;
   return () => {
     if (!instance) {
-      if (!process.env.API_KEY) {
-        console.error("API_KEY environment variable not set.");
-        throw new Error("API_KEY not set");
+      const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+      if (!apiKey || apiKey === 'your-gemini-api-key-here') {
+        const error = new Error(
+          "Gemini API key not configured. Please set GEMINI_API_KEY in your .env file. Get your key from https://aistudio.google.com/app/apikey"
+        );
+        console.error(error.message);
+        throw error;
       }
-      instance = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      instance = new GoogleGenAI({ apiKey });
     }
     return instance;
   };
